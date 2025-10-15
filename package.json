@@ -9,7 +9,12 @@
     "dev:frontend": "cd frontend && npm run dev",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm run build",
-    "start": "cd backend && npm start"
+    "start": "cd backend && npm start",
+    "setup": "./scripts/dev-setup.sh",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules package-lock.json backend/package-lock.json frontend/package-lock.json",
+    "test": "echo \"运行测试...\" && cd backend && npm test --if-present && cd ../frontend && npm test --if-present",
+    "lint": "cd frontend && npm run lint",
+    "format": "echo \"格式化代码...\" && cd frontend && npm run lint -- --fix"
   },
   "keywords": ["german", "numbers", "practice", "education", "tts", "react"],
   "author": "",
