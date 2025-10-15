@@ -1,4 +1,3 @@
-import React from 'react';
 import NumberPractice from './components/NumberPractice';
 import './App.css';
 

@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AnswerInput from './AnswerInput';
+import SettingsPanel from './SettingsPanel';
+import PracticeHistory from './PracticeHistory';
 import { speakGermanText, isTTSSupported, stopSpeaking } from '../utils/tts';
 
 /**
@@ -15,6 +17,16 @@ const NumberPractice = () => {
   const [stats, setStats] = useState({ total: 0, correct: 0, incorrect: 0 });
   const [ttsSupported, setTtsSupported] = useState(false);
   const [error, setError] = useState('');
+  
+  // 新增状态
+  const [settings, setSettings] = useState({
+    min: 0,
+    max: 100,
+    allowDecimal: false,
+    decimalPlaces: 1
+  });
+  const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // 检查TTS支持
   useEffect(() => {
@@ -24,13 +36,33 @@ const NumberPractice = () => {
     }
   }, []);
 
+  // 加载设置
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('german-number-settings');
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettings(prev => ({ ...prev, ...parsed }));
+      } catch (error) {
+        console.error('加载设置失败:', error);
+      }
+    }
+  }, []);
+
   // 获取新数字
   const fetchNewNumber = useCallback(async () => {
     setIsLoading(true);
     setError('');
     
     try {
-      const response = await fetch('/api/number?min=0&max=100');
+      const params = new URLSearchParams({
+        min: settings.min.toString(),
+        max: settings.max.toString(),
+        decimal: settings.allowDecimal.toString(),
+        decimalPlaces: settings.decimalPlaces.toString()
+      });
+      
+      const response = await fetch(`/api/number?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP错误: ${response.status}`);
       }
@@ -45,7 +77,7 @@ const NumberPractice = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [settings]);
 
   // 播放德语数字
   const playNumber = useCallback(async () => {
@@ -91,6 +123,25 @@ const NumberPractice = () => {
       const result = await response.json();
       setIsCorrect(result.isCorrect);
       
+      // 保存到历史记录
+      try {
+        await fetch('/api/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            number: currentNumber.number,
+            germanWord: currentNumber.germanWord,
+            userAnswer: answer,
+            isCorrect: result.isCorrect,
+            settings: settings
+          })
+        });
+      } catch (historyError) {
+        console.error('保存历史记录失败:', historyError);
+      }
+      
       // 更新统计
       setStats(prevStats => ({
         total: prevStats.total + 1,
@@ -103,7 +154,7 @@ const NumberPractice = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentNumber, isLoading]);
+  }, [currentNumber, isLoading, settings]);
 
   // 下一题
   const handleNextQuestion = useCallback(() => {
@@ -125,7 +176,25 @@ const NumberPractice = () => {
 
   return (
     <div className="container">
-      <h1>🔢 德语数字练习</h1>
+      <div className="header">
+        <h1>🔢 德语数字练习</h1>
+        <div className="header-actions">
+          <button 
+            className="btn-secondary"
+            onClick={() => setShowSettings(true)}
+            title="设置"
+          >
+            ⚙️
+          </button>
+          <button 
+            className="btn-secondary"
+            onClick={() => setShowHistory(true)}
+            title="历史记录"
+          >
+            📊
+          </button>
+        </div>
+      </div>
       
       {error && (
         <div className="feedback incorrect">
@@ -159,6 +228,7 @@ const NumberPractice = () => {
                 onAnswerSubmit={handleAnswerSubmit}
                 disabled={isLoading || isPlaying}
                 placeholder="请输入听到的数字"
+                allowDecimal={settings.allowDecimal}
               />
             )}
 
@@ -223,6 +293,20 @@ const NumberPractice = () => {
           </div>
         </div>
       )}
+
+      {/* 设置面板 */}
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        settings={settings}
+        onSettingsChange={setSettings}
+      />
+
+      {/* 历史记录面板 */}
+      <PracticeHistory
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
     </div>
   );
 };

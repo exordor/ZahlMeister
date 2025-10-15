@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * 答案输入组件
@@ -7,12 +8,14 @@ import React, { useState, useEffect } from 'react';
  * @param {boolean} props.disabled - 是否禁用输入
  * @param {string} props.placeholder - 输入框占位符
  * @param {string} props.className - 自定义CSS类名
+ * @param {boolean} props.allowDecimal - 是否允许小数输入
  */
 const AnswerInput = ({ 
   onAnswerSubmit, 
   disabled = false, 
   placeholder = "请输入数字",
-  className = ""
+  className = "",
+  allowDecimal = false
 }) => {
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
@@ -27,12 +30,26 @@ const AnswerInput = ({
   const handleInputChange = (e) => {
     const value = e.target.value;
     
-    // 只允许输入数字
-    if (value === '' || /^\d+$/.test(value)) {
+    // 根据是否允许小数进行验证
+    if (value === '') {
       setAnswer(value);
       setError('');
+    } else if (allowDecimal) {
+      // 允许小数：数字、一个小数点、最多2位小数
+      if (/^\d*\.?\d{0,2}$/.test(value)) {
+        setAnswer(value);
+        setError('');
+      } else {
+        setError('请输入有效的数字（支持小数）');
+      }
     } else {
-      setError('请输入有效的数字');
+      // 只允许整数
+      if (/^\d+$/.test(value)) {
+        setAnswer(value);
+        setError('');
+      } else {
+        setError('请输入有效的整数');
+      }
     }
   };
 
@@ -46,7 +63,8 @@ const AnswerInput = ({
     }
 
     if (onAnswerSubmit) {
-      onAnswerSubmit(parseInt(answer));
+      const numAnswer = allowDecimal ? parseFloat(answer) : parseInt(answer);
+      onAnswerSubmit(numAnswer);
       clearInput();
     }
   };
@@ -74,9 +92,9 @@ const AnswerInput = ({
             value={answer}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            placeholder={placeholder}
+            placeholder={allowDecimal ? placeholder + "（支持小数）" : placeholder}
             disabled={disabled}
-            maxLength="4"
+            maxLength="8"
             autoComplete="off"
             autoFocus
           />
@@ -97,6 +115,14 @@ const AnswerInput = ({
       )}
     </div>
   );
+};
+
+AnswerInput.propTypes = {
+  onAnswerSubmit: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+  placeholder: PropTypes.string,
+  className: PropTypes.string,
+  allowDecimal: PropTypes.bool
 };
 
 export default AnswerInput;

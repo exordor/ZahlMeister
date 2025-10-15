@@ -31,11 +31,11 @@ const tens = {
 };
 
 /**
- * 将数字转换为德语单词
- * @param {number} num - 要转换的数字
+ * 将整数部分转换为德语单词
+ * @param {number} num - 要转换的整数
  * @returns {string} 德语数字单词
  */
-function numberToGerman(num) {
+function integerToGerman(num) {
   if (num < 0 || num > 1000) {
     throw new Error("数字必须在0-1000范围内");
   }
@@ -94,12 +94,49 @@ function numberToGerman(num) {
 }
 
 /**
+ * 将小数部分转换为德语单词
+ * @param {string} decimalPart - 小数部分字符串
+ * @returns {string} 德语小数部分
+ */
+function decimalToGerman(decimalPart) {
+  return decimalPart.split('').map(digit => basicNumbers[parseInt(digit)]).join(' ');
+}
+
+/**
+ * 将数字转换为德语单词（支持小数）
+ * @param {number} num - 要转换的数字
+ * @returns {string} 德语数字单词
+ */
+function numberToGerman(num) {
+  // 检查是否为小数
+  if (num % 1 !== 0) {
+    const integerPart = Math.floor(num);
+    const decimalPart = num.toString().split('.')[1];
+    
+    const integerWord = integerToGerman(integerPart);
+    const decimalWord = decimalToGerman(decimalPart);
+    
+    return `${integerWord} Komma ${decimalWord}`;
+  }
+  
+  // 整数情况
+  return integerToGerman(num);
+}
+
+/**
  * 生成指定范围内的随机数字
  * @param {number} min - 最小值
  * @param {number} max - 最大值
+ * @param {boolean} allowDecimal - 是否允许小数
+ * @param {number} decimalPlaces - 小数位数
  * @returns {number} 随机数字
  */
-function generateRandomNumber(min = 0, max = 100) {
+function generateRandomNumber(min = 0, max = 100, allowDecimal = false, decimalPlaces = 1) {
+  if (allowDecimal) {
+    const multiplier = Math.pow(10, decimalPlaces);
+    const randomInteger = Math.random() * (max - min) + min;
+    return Math.round(randomInteger * multiplier) / multiplier;
+  }
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -107,20 +144,30 @@ function generateRandomNumber(min = 0, max = 100) {
  * 获取随机数字及其德语表示
  * @param {number} min - 最小值
  * @param {number} max - 最大值
+ * @param {boolean} allowDecimal - 是否允许小数
+ * @param {number} decimalPlaces - 小数位数
  * @returns {object} 包含数字和德语单词的对象
  */
-function getRandomGermanNumber(min = 0, max = 100) {
-  const number = generateRandomNumber(min, max);
+function getRandomGermanNumber(min = 0, max = 100, allowDecimal = false, decimalPlaces = 1) {
+  const number = generateRandomNumber(min, max, allowDecimal, decimalPlaces);
   const germanWord = numberToGerman(number);
   
   return {
     number,
-    germanWord
+    germanWord,
+    settings: {
+      min,
+      max,
+      allowDecimal,
+      decimalPlaces
+    }
   };
 }
 
 module.exports = {
   numberToGerman,
   generateRandomNumber,
-  getRandomGermanNumber
+  getRandomGermanNumber,
+  integerToGerman,
+  decimalToGerman
 };
