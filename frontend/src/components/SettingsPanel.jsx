@@ -110,7 +110,10 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
       allowDecimal: false,
       decimalPlaces: 1,
       autoPlayEnabled: false,
-      autoPlayCount: 1
+      autoPlayCount: 1,
+      speechRate: 0.9,
+      speechPitch: 1,
+      speechVolume: 1
     };
     setLocalSettings(defaultSettings);
     saveSettings(defaultSettings);
@@ -239,25 +242,87 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
               </label>
             </div>
 
-            {localSettings.autoPlayEnabled && (
-              <div className="auto-play-settings">
-                <label htmlFor="autoPlayCount">播放次数：</label>
-                <input
-                  id="autoPlayCount"
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={localSettings.autoPlayCount ?? 1}
-                  onChange={(e) => handleAutoPlayCountChange(e.target.value)}
-                  className="range-input"
-                />
-                <span className="auto-play-hint">每次获取新题目时自动播放次数</span>
-              </div>
-            )}
+          {localSettings.autoPlayEnabled && (
+            <div className="auto-play-settings">
+              <label htmlFor="autoPlayCount">播放次数：</label>
+              <input
+                id="autoPlayCount"
+                type="number"
+                min="1"
+                max="5"
+                value={localSettings.autoPlayCount ?? 1}
+                onChange={(e) => handleAutoPlayCountChange(e.target.value)}
+                className="range-input"
+              />
+              <span className="auto-play-hint">每次获取新题目时自动播放次数</span>
+            </div>
+          )}
+        </div>
+
+        {/* 语音控制 */}
+        <div className="setting-group">
+          <h4>🗣️ 语音控制</h4>
+
+          <div className="slider-control">
+            <label htmlFor="speechRate">
+              语速：
+              <span className="slider-value">
+                {(localSettings.speechRate ?? 0.9).toFixed(1)}x
+              </span>
+            </label>
+            <input
+              id="speechRate"
+              type="range"
+              min="0.6"
+              max="1.4"
+              step="0.1"
+              value={localSettings.speechRate ?? 0.9}
+              onChange={(e) => handleSettingChange('speechRate', parseFloat(e.target.value))}
+            />
+            <div className="slider-hint">调整语音播放速度</div>
           </div>
 
-          {/* 操作按钮 */}
-          <div className="settings-actions">
+          <div className="slider-control">
+            <label htmlFor="speechPitch">
+              音调：
+              <span className="slider-value">
+                {(localSettings.speechPitch ?? 1).toFixed(1)}
+              </span>
+            </label>
+            <input
+              id="speechPitch"
+              type="range"
+              min="0.8"
+              max="1.2"
+              step="0.1"
+              value={localSettings.speechPitch ?? 1}
+              onChange={(e) => handleSettingChange('speechPitch', parseFloat(e.target.value))}
+            />
+            <div className="slider-hint">倾向高音或低音</div>
+          </div>
+
+          <div className="slider-control">
+            <label htmlFor="speechVolume">
+              音量：
+              <span className="slider-value">
+                {Math.round((localSettings.speechVolume ?? 1) * 100)}%
+              </span>
+            </label>
+            <input
+              id="speechVolume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={localSettings.speechVolume ?? 1}
+              onChange={(e) => handleSettingChange('speechVolume', parseFloat(e.target.value))}
+            />
+            <div className="slider-hint">语音播放音量（不影响提示音）</div>
+          </div>
+        </div>
+
+        {/* 操作按钮 */}
+        <div className="settings-actions">
             <button className="btn-secondary" onClick={handleReset}>
               🔄 重置设置
             </button>

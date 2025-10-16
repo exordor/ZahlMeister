@@ -560,6 +560,35 @@ button:active::after {
   color: var(--color-text-secondary);
 }
 
+.slider-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.slider-control label {
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-control input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-primary);
+}
+
+.slider-value {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+}
+
+.slider-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
 /* Toggle Switch */
 .toggle-label {
   display: flex;

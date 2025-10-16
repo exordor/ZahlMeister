@@ -50,7 +50,10 @@ const NumberPractice = () => {
     soundEnabled: true,
     difficulty: 'medium',
     autoPlayEnabled: false,
-    autoPlayCount: 1
+    autoPlayCount: 1,
+    speechRate: 0.9,
+    speechPitch: 1,
+    speechVolume: 1
   });
   const lastAutoPlayQuestionId = useRef(null);
   const currentNumberRef = useRef(null);
@@ -151,7 +154,12 @@ const NumberPractice = () => {
 
     try {
       for (let i = 0; i < plays; i += 1) {
-        await speakGermanText(targetWord);
+        await speakGermanText(
+          targetWord,
+          settings.speechRate ?? 0.9,
+          settings.speechPitch ?? 1,
+          settings.speechVolume ?? 1
+        );
         if (settings.soundEnabled) {
           playClick();
         }
@@ -169,7 +177,16 @@ const NumberPractice = () => {
     } finally {
       setIsPlaying(false);
     }
-  }, [currentNumber, ttsSupported, isPlaying, settings.soundEnabled, addToast]);
+  }, [
+    currentNumber,
+    ttsSupported,
+    isPlaying,
+    settings.soundEnabled,
+    settings.speechRate,
+    settings.speechPitch,
+    settings.speechVolume,
+    addToast
+  ]);
 
   // 提交答案
   const handleAnswerSubmit = useCallback(async (answer) => {
