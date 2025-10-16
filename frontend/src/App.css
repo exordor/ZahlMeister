@@ -1,61 +1,59 @@
-/* App.css - 主应用样式 */
+/* App.css - Main Application Layout */
 
 .App {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: var(--space-md);
+  position: relative;
+  overflow: hidden;
 }
 
-/* 响应式设计 */
+/* Animated background particles effect (optional enhancement) */
+.App::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: particlesMove 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes particlesMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Main content wrapper - ensure it's above particles */
+.App > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
+  .App {
+    padding: var(--space-sm);
   }
-  
-  .practice-card {
-    padding: 1.5rem;
-  }
-  
-  .button-group {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .button-group button {
-    width: 100%;
-    max-width: 200px;
-    margin: 0.25rem 0;
-  }
-  
-  .input-group input {
-    width: 150px;
-    margin: 0.5rem 0;
-  }
-  
-  .stats {
-    flex-direction: column;
-    gap: 1rem;
+
+  .App::before {
+    background-size: 30px 30px;
   }
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
-  .practice-card {
-    padding: 1rem;
-  }
-  
-  .input-group {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .input-group input {
-    width: 100%;
-    max-width: 200px;
+  .App {
+    align-items: flex-start;
+    padding-top: var(--space-lg);
   }
 }
