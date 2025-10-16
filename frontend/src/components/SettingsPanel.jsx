@@ -18,7 +18,9 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
     autoPlayEnabled: false,
     autoPlayCount: 1,
     soundEnabled: true,
-    difficulty: 'medium'
+    difficulty: 'medium',
+    autoAdvanceEnabled: false,
+    autoAdvanceDelay: 2000
   });
 
   // 预设范围选项
@@ -113,7 +115,9 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
       autoPlayCount: 1,
       speechRate: 0.9,
       speechPitch: 1,
-      speechVolume: 1
+      speechVolume: 1,
+      autoAdvanceEnabled: false,
+      autoAdvanceDelay: 2000
     };
     setLocalSettings(defaultSettings);
     saveSettings(defaultSettings);
@@ -319,6 +323,45 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
             />
             <div className="slider-hint">语音播放音量（不影响提示音）</div>
           </div>
+        </div>
+
+        {/* 自动进入下一题设置 */}
+        <div className="setting-group">
+          <h4>🚀 自动进入下一题</h4>
+
+          <div className="decimal-toggle">
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={localSettings.autoAdvanceEnabled}
+                onChange={(e) => handleSettingChange('autoAdvanceEnabled', e.target.checked)}
+                className="toggle-input"
+              />
+              <span className="toggle-slider"></span>
+              启用自动进入下一题
+            </label>
+          </div>
+
+          {localSettings.autoAdvanceEnabled && (
+            <div className="slider-control">
+              <label htmlFor="autoAdvanceDelay">
+                延迟时间：
+                <span className="slider-value">
+                  {(localSettings.autoAdvanceDelay / 1000).toFixed(1)}秒
+                </span>
+              </label>
+              <input
+                id="autoAdvanceDelay"
+                type="range"
+                min="1000"
+                max="5000"
+                step="500"
+                value={localSettings.autoAdvanceDelay}
+                onChange={(e) => handleSettingChange('autoAdvanceDelay', parseInt(e.target.value))}
+              />
+              <div className="slider-hint">回答正确后自动进入下一题的延迟时间</div>
+            </div>
+          )}
         </div>
 
         {/* 操作按钮 */}

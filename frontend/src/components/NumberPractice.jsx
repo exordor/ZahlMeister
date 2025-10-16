@@ -53,10 +53,13 @@ const NumberPractice = () => {
     autoPlayCount: 1,
     speechRate: 0.9,
     speechPitch: 1,
-    speechVolume: 1
+    speechVolume: 1,
+    autoAdvanceEnabled: false,
+    autoAdvanceDelay: 2000
   });
   const lastAutoPlayQuestionId = useRef(null);
   const currentNumberRef = useRef(null);
+  const autoAdvanceTimerRef = useRef(null);
 
   // 计时器
   const { sessionTime } = useSessionTimer();
@@ -243,7 +246,26 @@ const NumberPractice = () => {
           setTimeout(() => setShowCelebration(false), 2000);
         }
 
-        addToast(`正确！答案是 ${currentNumber.number}`, 'success', 2000);
+        // 自动进入下一题提示
+        const delaySeconds = settings.autoAdvanceDelay / 1000;
+        if (settings.autoAdvanceEnabled) {
+          addToast(`正确！答案是 ${currentNumber.number}。${delaySeconds}秒后自动进入下一题...`, 'success', settings.autoAdvanceDelay);
+        } else {
+          addToast(`正确！答案是 ${currentNumber.number}`, 'success', 2000);
+        }
+
+        // 自动进入下一题
+        if (settings.autoAdvanceEnabled) {
+          // 清除之前的定时器（如果有）
+          if (autoAdvanceTimerRef.current) {
+            clearTimeout(autoAdvanceTimerRef.current);
+          }
+          // 设置新的定时器
+          autoAdvanceTimerRef.current = setTimeout(() => {
+            stopSpeaking();
+            fetchNewNumber();
+          }, settings.autoAdvanceDelay);
+        }
       } else {
         if (settings.soundEnabled) {
           playError();
@@ -276,10 +298,15 @@ const NumberPractice = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentNumber, isLoading, finishQuestion, stats, settings, addToast]);
+  }, [currentNumber, isLoading, finishQuestion, stats, settings, addToast, fetchNewNumber]);
 
   // 下一题
   const handleNextQuestion = useCallback(() => {
+    // 清除自动进入下一题的定时器
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
     stopSpeaking();
     fetchNewNumber();
   }, [fetchNewNumber]);
@@ -338,10 +365,13 @@ const NumberPractice = () => {
     fetchNewNumber();
   }, [fetchNewNumber]);
 
-  // 组件卸载时停止播放
+  // 组件卸载时停止播放和清除定时器
   useEffect(() => {
     return () => {
       stopSpeaking();
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
     };
   }, []);
 
