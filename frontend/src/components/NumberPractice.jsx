@@ -3,8 +3,6 @@ import AnswerInput from './AnswerInput';
 import SettingsPanel from './SettingsPanel';
 import PracticeHistory from './PracticeHistory';
 import { ToastContainer } from './Toast';
-import StreakCounter from './StreakCounter';
-import Timer from './Timer';
 import ThemeToggle from './ThemeToggle';
 import { speakGermanText, isTTSSupported, stopSpeaking } from '../utils/tts';
 import { playSuccess, playError, playCelebration, playClick } from '../utils/sounds';
@@ -36,7 +34,6 @@ const NumberPractice = () => {
   // UI状态
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   // Toast通知状态
   const [toasts, setToasts] = useState([]);
@@ -241,11 +238,6 @@ const NumberPractice = () => {
           }
         }
 
-        if (newStreak >= 5) {
-          setShowCelebration(true);
-          setTimeout(() => setShowCelebration(false), 2000);
-        }
-
         // 自动进入下一题提示
         const delaySeconds = settings.autoAdvanceDelay / 1000;
         if (settings.autoAdvanceEnabled) {
@@ -398,26 +390,73 @@ const NumberPractice = () => {
         </div>
       </div>
 
-      {/* 计时器和连胜计数器 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-lg)', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
-        <Timer
-          seconds={sessionTime}
-          isRunning={true}
-          label="总时长"
-        />
+      {/* 统一仪表盘 - Dashboard */}
+      <div className="dashboard">
+        {/* 总时长 */}
+        <div className="dashboard-item">
+          <div className="dashboard-value">
+            {Math.floor(sessionTime / 3600).toString().padStart(2, '0')}:
+            {Math.floor((sessionTime % 3600) / 60).toString().padStart(2, '0')}:
+            {(sessionTime % 60).toString().padStart(2, '0')}
+          </div>
+          <div className="dashboard-label">总时长</div>
+        </div>
 
-        <StreakCounter
-          streak={stats.streak}
-          bestStreak={stats.bestStreak}
-          showCelebration={showCelebration}
-        />
-
+        {/* 本题时长 (只在计时时显示) */}
         {isTimerRunning && (
-          <Timer
-            seconds={questionTime}
-            isRunning={isTimerRunning}
-            label="本题"
-          />
+          <div className="dashboard-item">
+            <div className="dashboard-value">
+              {Math.floor(questionTime / 60).toString().padStart(2, '0')}:
+              {(questionTime % 60).toString().padStart(2, '0')}
+            </div>
+            <div className="dashboard-label">本题</div>
+          </div>
+        )}
+
+        {/* 当前连胜 */}
+        <div className="dashboard-item streak">
+          <div className="dashboard-value">
+            {stats.streak >= 5 ? '🔥' : ''} {stats.streak}
+          </div>
+          <div className="dashboard-label">连胜</div>
+        </div>
+
+        {/* 最佳连胜 */}
+        {stats.bestStreak > 0 && (
+          <div className="dashboard-item">
+            <div className="dashboard-value">{stats.bestStreak}</div>
+            <div className="dashboard-label">最佳</div>
+          </div>
+        )}
+
+        {/* 总题数 */}
+        {stats.total > 0 && (
+          <>
+            <div className="dashboard-item">
+              <div className="dashboard-value">{stats.total}</div>
+              <div className="dashboard-label">总数</div>
+            </div>
+
+            {/* 正确 */}
+            <div className="dashboard-item">
+              <div className="dashboard-value">{stats.correct}</div>
+              <div className="dashboard-label">正确</div>
+            </div>
+
+            {/* 错误 */}
+            <div className="dashboard-item">
+              <div className="dashboard-value">{stats.incorrect}</div>
+              <div className="dashboard-label">错误</div>
+            </div>
+
+            {/* 正确率 */}
+            <div className="dashboard-item accuracy">
+              <div className="dashboard-value">
+                {stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}%
+              </div>
+              <div className="dashboard-label">准确率</div>
+            </div>
+          </>
         )}
       </div>
 
@@ -482,30 +521,6 @@ const NumberPractice = () => {
           <div>🔄 加载中...</div>
         )}
       </div>
-
-      {/* 统计信息 */}
-      {stats.total > 0 && (
-        <div className="stats">
-          <div className="stat-item">
-            <div className="stat-number">{stats.total}</div>
-            <div className="stat-label">总题数</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">{stats.correct}</div>
-            <div className="stat-label">正确</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">{stats.incorrect}</div>
-            <div className="stat-label">错误</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">
-              {stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}%
-            </div>
-            <div className="stat-label">正确率</div>
-          </div>
-        </div>
-      )}
 
       {/* 键盘快捷键提示 */}
       <div style={{

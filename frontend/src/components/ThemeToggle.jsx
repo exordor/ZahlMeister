@@ -66,11 +66,10 @@ const ThemeToggle = ({ className = '' }) => {
     <button
       className={`theme-toggle ${className}`}
       onClick={cycleTheme}
-      aria-label={`Switch theme (current: ${getThemeLabel()})`}
-      title={`当前主题: ${getThemeLabel()}`}
+      aria-label={`切换主题 (当前: ${getThemeLabel()}模式)`}
+      title={`切换主题 (当前: ${getThemeLabel()}模式)`}
     >
       <span className="theme-icon">{getThemeIcon()}</span>
-      <span className="theme-label">{getThemeLabel()}</span>
     </button>
   );
 };
