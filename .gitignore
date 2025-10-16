@@ -89,3 +89,11 @@ jspm_packages/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+# SQLite Database files
+backend/db/*.db
+backend/db/*.db-shm
+backend/db/*.db-wal
+
+# Old JSON data files (deprecated)
+backend/data/history.json

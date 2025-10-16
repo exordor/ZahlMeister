@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m \"$(cat <<''EOF''\n✨ 重大UI升级和功能增强：现代化设计系统\n\n## 🎨 UI美化\n- 添加现代渐变背景动画和粒子效果\n- 实现玻璃态(Glassmorphism)卡片设计\n- 创建完整的设计系统(variables.css)和动画库(animations.css)\n- 重构index.css和App.css，全面优化视觉效果\n- 添加流畅的过渡动画和悬停效果\n- 实现响应式设计，完美支持移动端\n\n## 🚀 新增功能组件\n- Toast通知系统：优雅的消息提示替代alert\n- StreakCounter：连胜计数器，带庆祝动画和音效\n- Timer：双计时器系统(会话时长+单题时长)\n- ThemeToggle：主题切换(浅色/深色/自动)\n- DifficultySelector：难度选择器(简单/中等/困难/专家)\n\n## 🎵 增强功能\n- 音效系统：成功/错误/庆祝/点击音效(Web Audio API)\n- 键盘快捷键：Space播放、N下一题、S设置、H历史\n- 统计持久化：连胜和最佳连胜保存到localStorage\n- 增强的用户反馈：Toast通知、声音、动画相结合\n\n## 🛠️ 技术改进\n- 创建自定义Hooks：useTimer、useKeyboardShortcuts\n- 实现工具模块：sounds.js音频管理\n- 优化组件架构：NumberPractice组件全面重构\n- 添加CLAUDE.md项目文档\n\n## 🐛 Bug修复\n- 修复按钮ripple效果阻挡点击的问题(pointer-events: none)\n- 修复Space键重复获取新数字的问题\n- 优化输入框交互和焦点管理\n\n## 📁 新增文件\n- frontend/src/styles/variables.css - 设计系统变量\n- frontend/src/styles/animations.css - 动画库\n- frontend/src/components/Toast.jsx + CSS - 通知组件\n- frontend/src/components/Timer.jsx + CSS - 计时器\n- frontend/src/components/StreakCounter.jsx + CSS - 连胜计数器\n- frontend/src/components/ThemeToggle.jsx + CSS - 主题切换\n- frontend/src/components/DifficultySelector.jsx + CSS - 难度选择\n- frontend/src/hooks/useTimer.js - 计时器Hook\n- frontend/src/hooks/useKeyboardShortcuts.js - 快捷键Hook\n- frontend/src/utils/sounds.js - 音效工具\n- CLAUDE.md - 项目开发文档\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(cat:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(json_pp:*)",
+      "Bash(git check-ignore:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
