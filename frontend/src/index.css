@@ -91,6 +91,12 @@ a:hover {
 }
 
 .header h1 {
+  color: #ffffff;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   margin: 0;
   display: flex;
   align-items: center;
