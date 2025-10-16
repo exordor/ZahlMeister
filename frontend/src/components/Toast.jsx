@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import './Toast.css';
 
 /**
  * Toast Notification Component
- * Displays temporary notification messages
+ * Displays temporary notification messages with auto-dismiss after 3 seconds
  * @param {object} props - Component properties
  * @param {string} props.message - The message to display
  * @param {string} props.type - Type of toast: 'success', 'error', 'info', 'warning'
@@ -19,17 +19,34 @@ const Toast = ({
   onClose,
   isVisible = true
 }) => {
+  const [isExiting, setIsExiting] = useState(false);
+  const onCloseRef = useRef(onClose);
+
+  // Keep onCloseRef up to date
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!isVisible || duration === 0) return;
 
-    const timer = setTimeout(() => {
-      if (onClose) {
-        onClose();
+    // Start exit animation 300ms before removal (for smooth fade out)
+    const exitTimer = setTimeout(() => {
+      setIsExiting(true);
+    }, duration - 300);
+
+    // Actually remove the toast after full duration
+    const removeTimer = setTimeout(() => {
+      if (onCloseRef.current) {
+        onCloseRef.current();
       }
     }, duration);
 
-    return () => clearTimeout(timer);
-  }, [isVisible, duration, onClose]);
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(removeTimer);
+    };
+  }, [isVisible, duration]);
 
   if (!isVisible || !message) return null;
 
@@ -48,7 +65,7 @@ const Toast = ({
   };
 
   return (
-    <div className={`toast toast-${type} animate-slideInRight`}>
+    <div className={`toast toast-${type} ${isExiting ? 'toast-exit' : 'animate-slideInRight'}`}>
       <div className="toast-icon">{getIcon()}</div>
       <div className="toast-message">{message}</div>
       {onClose && (
