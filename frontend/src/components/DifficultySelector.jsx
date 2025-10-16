@@ -4,7 +4,7 @@ import './DifficultySelector.css';
 /**
  * Difficulty levels configuration
  */
-export const DIFFICULTY_LEVELS = {
+const DIFFICULTY_LEVELS = {
   easy: {
     label: '简单',
     icon: '🌱',

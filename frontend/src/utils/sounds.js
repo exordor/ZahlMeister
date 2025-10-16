@@ -14,10 +14,14 @@ class SoundManager {
   }
 
   initContext() {
-    if (typeof AudioContext !== 'undefined') {
-      this.context = new AudioContext();
-    } else if (typeof webkitAudioContext !== 'undefined') {
-      this.context = new webkitAudioContext();
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (typeof window.AudioContext !== 'undefined') {
+      this.context = new window.AudioContext();
+    } else if (typeof window.webkitAudioContext !== 'undefined') {
+      this.context = new window.webkitAudioContext();
     }
   }
 
