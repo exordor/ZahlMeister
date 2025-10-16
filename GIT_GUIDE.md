@@ -7,7 +7,7 @@
 ### 1. 克隆项目（如果是新开发者）
 ```bash
 git clone <repository-url>
-cd NumPrac
+cd ZahlMeister
 ```
 
 ### 2. 查看项目状态

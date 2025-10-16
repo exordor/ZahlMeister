@@ -7,7 +7,7 @@
 ### 1. 克隆项目
 ```bash
 git clone <repository-url>
-cd NumPrac
+cd ZahlMeister
 ```
 
 ### 2. 安装依赖
@@ -116,7 +116,7 @@ npm test
 ## 📁 项目结构
 
 ```
-NumPrac/
+ZahlMeister/
 ├── backend/          # 后端代码
 │   ├── utils/       # 工具函数
 │   └── tests/       # 测试文件
