@@ -14,7 +14,11 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
     min: 0,
     max: 100,
     allowDecimal: false,
-    decimalPlaces: 1
+    decimalPlaces: 1,
+    autoPlayEnabled: false,
+    autoPlayCount: 1,
+    soundEnabled: true,
+    difficulty: 'medium'
   });
 
   // 预设范围选项
@@ -80,6 +84,16 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
     handleSettingChange(key, num);
   };
 
+  // 处理自动播放次数
+  const handleAutoPlayCountChange = (value) => {
+    const num = parseInt(value, 10);
+    if (isNaN(num)) {
+      return;
+    }
+    const safeValue = Math.min(5, Math.max(1, num));
+    handleSettingChange('autoPlayCount', safeValue);
+  };
+
   // 关闭设置面板
   const handleClose = () => {
     if (onClose) {
@@ -90,10 +104,13 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
   // 重置为默认设置
   const handleReset = () => {
     const defaultSettings = {
+      ...localSettings,
       min: 0,
       max: 100,
       allowDecimal: false,
-      decimalPlaces: 1
+      decimalPlaces: 1,
+      autoPlayEnabled: false,
+      autoPlayCount: 1
     };
     setLocalSettings(defaultSettings);
     saveSettings(defaultSettings);
@@ -201,6 +218,40 @@ const SettingsPanel = ({ isOpen, onClose, settings, onSettingsChange }) => {
                     2位
                   </button>
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* 自动播放设置 */}
+          <div className="setting-group">
+            <h4>🎧 自动播放</h4>
+
+            <div className="decimal-toggle">
+              <label className="toggle-label">
+                <input
+                  type="checkbox"
+                  checked={localSettings.autoPlayEnabled}
+                  onChange={(e) => handleSettingChange('autoPlayEnabled', e.target.checked)}
+                  className="toggle-input"
+                />
+                <span className="toggle-slider"></span>
+                启用自动播放
+              </label>
+            </div>
+
+            {localSettings.autoPlayEnabled && (
+              <div className="auto-play-settings">
+                <label htmlFor="autoPlayCount">播放次数：</label>
+                <input
+                  id="autoPlayCount"
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={localSettings.autoPlayCount ?? 1}
+                  onChange={(e) => handleAutoPlayCountChange(e.target.value)}
+                  className="range-input"
+                />
+                <span className="auto-play-hint">每次获取新题目时自动播放次数</span>
               </div>
             )}
           </div>

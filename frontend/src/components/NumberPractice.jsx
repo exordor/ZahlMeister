@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import AnswerInput from './AnswerInput';
 import SettingsPanel from './SettingsPanel';
 import PracticeHistory from './PracticeHistory';
@@ -22,6 +22,7 @@ const NumberPractice = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [ttsSupported, setTtsSupported] = useState(false);
+  const [questionId, setQuestionId] = useState(0);
 
   // 统计状态
   const [stats, setStats] = useState({
@@ -47,8 +48,12 @@ const NumberPractice = () => {
     allowDecimal: false,
     decimalPlaces: 1,
     soundEnabled: true,
-    difficulty: 'medium'
+    difficulty: 'medium',
+    autoPlayEnabled: false,
+    autoPlayCount: 1
   });
+  const lastAutoPlayQuestionId = useRef(null);
+  const currentNumberRef = useRef(null);
 
   // 计时器
   const { sessionTime } = useSessionTimer();
@@ -71,6 +76,10 @@ const NumberPractice = () => {
       addToast('您的浏览器不支持语音合成功能，请使用Chrome、Edge或Safari浏览器', 'warning', 5000);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    currentNumberRef.current = currentNumber;
+  }, [currentNumber]);
 
   // 加载设置
   useEffect(() => {
@@ -122,6 +131,7 @@ const NumberPractice = () => {
       setCurrentNumber(data);
       setUserAnswer(null);
       setIsCorrect(null);
+      setQuestionId(prev => prev + 1);
       startQuestion(); // 开始计时
     } catch (err) {
       console.error('获取数字失败:', err);
@@ -132,15 +142,26 @@ const NumberPractice = () => {
   }, [settings, startQuestion, addToast]);
 
   // 播放德语数字
-  const playNumber = useCallback(async () => {
+  const playNumber = useCallback(async (repeatCount = 1) => {
     if (!currentNumber || !ttsSupported || isPlaying) return;
 
+    const plays = Math.max(1, Number(repeatCount) || 1);
+    const targetWord = currentNumber.germanWord;
     setIsPlaying(true);
 
     try {
-      await speakGermanText(currentNumber.germanWord);
-      if (settings.soundEnabled) {
-        playClick();
+      for (let i = 0; i < plays; i += 1) {
+        await speakGermanText(targetWord);
+        if (settings.soundEnabled) {
+          playClick();
+        }
+        if (i < plays - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          const latestNumber = currentNumberRef.current;
+          if (!latestNumber || latestNumber.germanWord !== targetWord) {
+            break;
+          }
+        }
       }
     } catch (err) {
       console.error('播放失败:', err);
@@ -246,6 +267,34 @@ const NumberPractice = () => {
     fetchNewNumber();
   }, [fetchNewNumber]);
 
+  useEffect(() => {
+    if (!settings.autoPlayEnabled) {
+      return;
+    }
+    lastAutoPlayQuestionId.current = null;
+  }, [settings.autoPlayEnabled]);
+
+  // 自动播放
+  useEffect(() => {
+    if (!settings.autoPlayEnabled) return;
+    if (!currentNumber || !ttsSupported) return;
+    if (isPlaying) return;
+    if (questionId === 0) return;
+    if (lastAutoPlayQuestionId.current === questionId) return;
+
+    lastAutoPlayQuestionId.current = questionId;
+    const repeatCount = Math.max(1, Number(settings.autoPlayCount) || 1);
+    playNumber(repeatCount);
+  }, [
+    settings.autoPlayEnabled,
+    settings.autoPlayCount,
+    currentNumber,
+    ttsSupported,
+    questionId,
+    playNumber,
+    isPlaying
+  ]);
+
   // 键盘快捷键
   useKeyboardShortcuts({
     [SHORTCUTS.SPACE]: () => {
@@ -333,7 +382,7 @@ const NumberPractice = () => {
             <div className="button-group">
               <button 
                 className="btn-primary"
-                onClick={playNumber}
+                onClick={() => playNumber()}
                 disabled={!ttsSupported || isPlaying || isLoading}
               >
                 {isPlaying ? '🎵 播放中...' : '🔊 播放数字'}
@@ -343,7 +392,7 @@ const NumberPractice = () => {
             {isCorrect === null && !userAnswer && (
               <AnswerInput
                 onAnswerSubmit={handleAnswerSubmit}
-                disabled={isLoading || isPlaying}
+                disabled={isLoading}
                 placeholder="请输入听到的数字"
                 allowDecimal={settings.allowDecimal}
               />
@@ -370,7 +419,7 @@ const NumberPractice = () => {
                   {isCorrect === false && (
                     <button
                       className="btn-primary"
-                      onClick={playNumber}
+                      onClick={() => playNumber()}
                       disabled={!ttsSupported || isPlaying}
                     >
                       再听一遍 (Space)
